@@ -156,6 +156,29 @@ export class SchedulerService {
         return await this.classTimeModel.find({ query })
     }
 
+    public async deleteClass(tutor, className) {
+        try {
+            const classToDelete = await this.classModel.findOne({ tutor, className });
+            if(!classToDelete) {
+                throw new HttpException('Class doesn`t exist', HttpStatus.NOT_FOUND);
+            }
+    
+            const classTimes = await this.classTimeModel.find({ classId: classToDelete._id });
+            if(classTimes.length) {
+                await this.classTimeModel.deleteMany({ classId: classToDelete._id });
+                for(let time of classTimes) {
+                    for(let participant of time.participants) {
+                        await this.userService.updateClassesLeftForWeek({ name: participant },1);
+                    }
+                }
+            }
+    
+            await this.classModel.deleteOne({ tutor, className });
+        } catch(err) {
+            throw err;
+        }
+    }
+
     private async findClass(query): Promise<findClassResponseDto> {
         return await this.classModel.findOne(query);
     }

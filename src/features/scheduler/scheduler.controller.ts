@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { AddClassDto } from './dto/add-class-payload.dto';
 import { SchedulerService } from './scheduler.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -11,6 +11,7 @@ import { UnsignClassDto } from './dto/unsighn-class-payload.dto';
 import { Role } from 'src/core/enums';
 import { Roles } from '../authorization/roles.decorator';
 import { RolesGuard } from '../authorization/roles.guard';
+import { deleteClassPayloadDto } from './dto/delete-class-payload.dto';
 
 @ApiTags('scheduler')
 @Controller('scheduler')
@@ -75,6 +76,14 @@ export class SchedulerController {
         }
 
         return classes;
+    }
+
+    @ApiBearerAuth()
+    @Roles(Role.USER, Role.ADMIN)
+    @UseGuards(AuthGuard, RolesGuard)
+    @Delete()
+    public async deleteClass(@Req() req, @Query() query: deleteClassPayloadDto) {
+        await this.service.deleteClass(req.userToken.name, query.className);
     }
 
 }
