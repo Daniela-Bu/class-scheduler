@@ -1,10 +1,12 @@
 
-import { Body, Controller, Post, HttpCode, HttpStatus, UseGuards, Get, Request } from '@nestjs/common';
+import { Body, Controller, Post, HttpCode, HttpStatus, UseGuards, Get, Request, Query } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './guard/auth.guard';
 import { SignInDto } from './dto/sign-in.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ForgotMyPasswordDto } from './dto/forgot-my-password-payload.dto';
+import { query } from 'express';
+import { VerificationQuestionDto } from '../user/dto/create-user-payload.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -17,18 +19,15 @@ export class AuthController {
     return this.authService.signIn(signInDto.userName, signInDto.password);
   }
 
+  @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Get('profile')
   public getProfile(@Request() req) {
-    return req.user;
+    return req.userToken.name;
   }
 
   @Post('password-reset')
-  public forgotMyPassword(@Body() body: ForgotMyPasswordDto) {
-    return this.authService.forgotMyPassword({
-      name: body.name,
-      userName: body.userName,
-      email: body.email
-    }, body.newPassword);
+  public forgotMyPassword(@Body() body: ForgotMyPasswordDto, @Query() query: VerificationQuestionDto) {
+    return this.authService.forgotMyPassword(body, query);
   }
 }

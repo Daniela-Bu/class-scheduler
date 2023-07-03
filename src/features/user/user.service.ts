@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '../mongodb/schemas/user.schema';
 import { Model } from 'mongoose';
@@ -8,15 +8,24 @@ import * as bcrypt from 'bcrypt';
 export class UserService {
     constructor(@InjectModel(User.name) private userModel: Model<User>) { }
 
-    public async createUser(params) {
+    public async createUser(params, verification): Promise<User> {
         try {
+            const emailExists = await this.userModel.findOne({ email: params.email });
+            if(emailExists) {
+                throw new HttpException('Email already exist', HttpStatus.CONFLICT);
+            }
+            const usernameExists = await this.userModel.findOne({ userName: params.userName });
+            if(usernameExists) {
+                throw new HttpException('Username already exist', HttpStatus.CONFLICT);
+            }
+
             const password = params.password;
             const saltOrRounds = 10;
             const hash = await bcrypt.hash(password, saltOrRounds);
             params.password = hash;
             params.classesLeftForWeek = params.maxClassesPerWeek;
 
-            return await this.userModel.create(params);
+            return await this.userModel.create({ ...params, ...verification });
         } catch (err) {
             throw err;
         }
@@ -31,11 +40,12 @@ export class UserService {
     }
 
     public async resetPassword(user, newPassword) {
+        const { userName, email } = user;
         const saltOrRounds = 10;
         const hash = await bcrypt.hash(newPassword, saltOrRounds);
         const update = { $set: { password: hash } };
 
-        return await this.userModel.updateOne(user, update);
+        return await this.userModel.updateOne({ userName, email }, update);
     }
 
     public async deleteUser(userData) {
