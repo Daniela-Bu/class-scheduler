@@ -19,17 +19,21 @@ export class AuthService {
         if (!isMatch) {
             throw new UnauthorizedException();
         }
-        const payload = { sub: user._id, username: user.userName, name: user.name, role: user.role };
+        const tokenPayload = { sub: user._id, username: user.userName, name: user.name, roles: user.roles };
 
         return {
-            accessToken: await this.jwtService.signAsync(payload)
+            accessToken: await this.jwtService.signAsync(tokenPayload)
         };
     }
 
-    async forgotMyPassword(userData, newPassword) {
-        const user = await this.userService.findUser(userData);
+    async forgotMyPassword(userData, verification) {
+        const { newPassword } = userData;
+        const user = await this.userService.findUser({ userName: userData.userName, email: userData.email });
         if(!user) {
             throw new HttpException('One of the details is incorrect', HttpStatus.NOT_FOUND);
+        }
+        if(user.answer !== verification.answer) {
+            throw new HttpException('Wrong answer', HttpStatus.BAD_REQUEST);
         }
 
         return this.userService.resetPassword(userData, newPassword);
