@@ -77,7 +77,7 @@ export class SchedulerService {
         return info;
     }
 
-    async findClassesByDay(day: string) {
+    async findClassesByDay(day) {
         return await this.classTimeModel.find({ day });
     }
 
