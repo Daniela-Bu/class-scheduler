@@ -1,6 +1,7 @@
 import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose";
 import { IsEnum, IsNumber, IsString, ValidateNested } from "class-validator";
 import { HydratedDocument } from "mongoose";
+import { VerificationQuestion } from "src/core/enums";
 import { Role } from "src/core/enums/role.enum";
 
 export type UserDocument = HydratedDocument<User>
@@ -11,16 +12,13 @@ export class User {
     public userName: string;
 
     @Prop({ required: true })
-    public password: string;    // TODO don't store password just like this
+    public password: string;
 
     @Prop({ required: true })
     public name: string;
 
     @Prop({ required: true })
-    public age: number;
-
-    @Prop({ required: true })
-    public role: Role;
+    public roles: Role[];
 
     @Prop({ required: true })
     public email: string;
@@ -30,6 +28,12 @@ export class User {
     
     @Prop({ required: true })
     public classesLeftForWeek: number;
+
+    @Prop({ required: true })
+    public question: VerificationQuestion;
+
+    @Prop({ required: true })
+    public answer: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

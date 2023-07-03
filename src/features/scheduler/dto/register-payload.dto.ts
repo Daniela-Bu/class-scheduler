@@ -10,9 +10,12 @@ export class RegisterDto {
     public className: ClassType;
     
     @ApiProperty({
-        required: true,
+        required: false,
         type: Number,
-        example: 6,
+        example: 8,
+        minimum: 5,
+        maximum: 10,
+        default: 8,
     })
     public maxParticipants: number;
 }

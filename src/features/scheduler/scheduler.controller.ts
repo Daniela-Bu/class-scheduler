@@ -20,9 +20,9 @@ export class SchedulerController {
     @ApiBearerAuth()
     @Roles(Role.ADMIN)
     @UseGuards(AuthGuard, RolesGuard)
-    @Post('register')
-    public async register(@Req() req, @Body() body: RegisterDto) {
-        return this.service.register(req.userToken, body);
+    @Get('register')
+    public async register(@Req() req, @Query() query: RegisterDto) {
+        return this.service.register(req.userToken, query);
     }
 
     @ApiBearerAuth()
