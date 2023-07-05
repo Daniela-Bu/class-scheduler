@@ -10,20 +10,24 @@ export class AuthService {
         private jwtService: JwtService) { }
 
     async signIn(userName: string, pass: string): Promise<any> {
-        const user = await this.userService.findUser({userName});
-        if(!user) {
-            throw new HttpException('Username does not exist', HttpStatus.NOT_FOUND);
-        }
+        try {
+            const user = await this.userService.findUser({ userName });
+            if (!user) {
+                throw new HttpException('Username does not exist', HttpStatus.NOT_FOUND);
+            }
 
-        const isMatch = await bcrypt.compare(pass, user.password);
-        if (!isMatch) {
-            throw new UnauthorizedException();
-        }
-        const tokenPayload = { sub: user._id, username: user.userName, name: user.name, roles: user.roles };
+            const isMatch = await bcrypt.compare(pass, user.password);
+            if (!isMatch) {
+                throw new UnauthorizedException();
+            }
+            const tokenPayload = { sub: user._id, username: user.userName, name: user.name, roles: user.roles };
 
-        return {
-            accessToken: await this.jwtService.signAsync(tokenPayload)
-        };
+            return {
+                accessToken: await this.jwtService.signAsync(tokenPayload)
+            };
+        } catch (err) {
+            throw err;
+        }
     }
 
     async forgotMyPassword(userData, verification) {
