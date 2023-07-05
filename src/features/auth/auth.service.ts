@@ -33,10 +33,10 @@ export class AuthService {
     async forgotMyPassword(userData, verification) {
         const { newPassword } = userData;
         const user = await this.userService.findUser({ userName: userData.userName, email: userData.email });
-        if (!user) {
+        if(!user) {
             throw new HttpException('One of the details is incorrect', HttpStatus.NOT_FOUND);
         }
-        if (user.answer !== verification.answer) {
+        if(user.answer !== verification.answer) {
             throw new HttpException('Wrong answer', HttpStatus.BAD_REQUEST);
         }
 
