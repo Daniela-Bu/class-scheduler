@@ -1,7 +1,6 @@
 import { Schema, Prop, SchemaFactory } from "@nestjs/mongoose";
-import { IsEnum, IsNumber, IsString, ValidateNested } from "class-validator";
 import { HydratedDocument } from "mongoose";
-import { VerificationQuestion } from "src/core/enums";
+import { VerificationQuestion } from "../../../core/enums/verification-question.enum";
 import { Role } from "src/core/enums/role.enum";
 
 export type UserDocument = HydratedDocument<User>
